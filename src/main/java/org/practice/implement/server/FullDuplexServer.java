@@ -12,13 +12,13 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class WebSocketServer {
+public class FullDuplexServer {
     ServerSocket serverSocket;
     GroupManager groupManager;
     ClientManager clientManager;
     int port;
 
-    public WebSocketServer(int port) {
+    public FullDuplexServer(int port) {
         this.port = port;
         this.groupManager = new GroupManager();
         this.clientManager = new ClientManager();
@@ -50,14 +50,14 @@ public class WebSocketServer {
         clientManager.registerClient(connectionClient);
         while(true) {
             try {
-                Message message = SocketIOHandler.getMessage(connectionClient.getClientSocket());
+                Message message = IOHandler.getMessage(connectionClient.getClientSocket());
                 if (message.getJoinRequest()) {
                     groupManager.addToGroup(message.getGroupID(), connectionClient.getClientID());
                 } else {
                     broadcastMessage(message, connectionClient);
                 }
             }catch (IllegalArgumentException e){
-                SocketIOHandler.write(e.getMessage(), connectionClient.getClientSocket());
+                IOHandler.write(e.getMessage(), connectionClient.getClientSocket());
             }
         }
 
@@ -69,13 +69,13 @@ public class WebSocketServer {
             Group broadcastGroup = groupManager.getGroup(message.getGroupID());
             broadcastGroup.getClients().forEach(clientID -> {
                 try {
-                    SocketIOHandler.write(message.getData(),clientManager.getClient(clientID).getClientSocket());
+                    IOHandler.write(message.getData(),clientManager.getClient(clientID).getClientSocket());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
         }catch (IllegalArgumentException e){
-            SocketIOHandler.write(e.getMessage(),senderClient.getClientSocket());
+            IOHandler.write(e.getMessage(),senderClient.getClientSocket());
         }
     }
 

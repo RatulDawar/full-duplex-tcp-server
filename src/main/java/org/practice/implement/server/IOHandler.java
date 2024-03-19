@@ -11,8 +11,8 @@ import java.nio.charset.StandardCharsets;
 
 
 // reads input and writes output to TCP connection
-public class SocketIOHandler {
-    private SocketIOHandler(){
+public class IOHandler {
+    private IOHandler(){
         throw new AssertionError("Cannot instantiate utility class");
     }
     public static String read(Socket clientSocket) throws IOException {
